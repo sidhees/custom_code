@@ -1,0 +1,46 @@
+<?php
+
+function custom_email_popup_block_info() {
+  $blocks['newsletter-subscription-popup'] = array(
+    'info' => t('Custom Popup in oyster Theme for Newsletter Subscription'),
+    'cache' => DRUPAL_NO_CACHE,
+    'region' => 'content',
+  );
+  return $blocks;
+}
+
+
+function custom_email_popup_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'newsletter-subscription-popup': $output = '';
+        drupal_add_js(drupal_get_path('module', 'custom_email_popup') . '/custom_email_popup.js'); 
+        //drupal_add_js(drupal_get_path('module', 'custom_email_popup') . '/additional-methods.js');
+        drupal_add_js(drupal_get_path('module', 'custom_email_popup') . '/jquery.validate.js');      
+        drupal_add_css(drupal_get_path('module', 'custom_email_popup') . '/custom_email_popup.css');
+        
+        $popup_block = module_invoke('block','block_view',4);/*block id of popup form*/
+        $popup_block =  render($popup_block['content']);    
+        
+        $module_path = drupal_get_path('module', 'custom_email_popup');
+          
+          $output .= '  <div class="newsletter-subscription-popup">
+          <div class="popupcontent">
+              <img src="'.base_path().$module_path.'/close-button.png" alt="quit" class="x" id="x" />
+              '.$popup_block.'
+          </div>
+        </div>';
+      $block['content'] = $output;
+      break; 
+  }
+  return $block;
+}
+function custom_email_popup_form_alter(&$form, $form_state, $form_id) {
+  if($form_id == 'search_api_page_search_form_data_search'){   
+    $form['keys_1']['#attributes']['placeholder'] = t('Search the site...');
+    hide($form['submit_1']);    
+  }
+}
+function custom_email_popup_search_api_query_alter($query) {
+ $query->sort('weight', 'ASC');
+}
